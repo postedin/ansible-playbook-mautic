@@ -1,0 +1,44 @@
+---
+- name: install unzip
+  apt:
+    name: unzip
+    state: installed
+
+- name: download and unzip mautic
+  unarchive:
+    src: "https://github.com/mautic/mautic/archive/{{ mautic_version }}.zip"
+    dest: "/opt"
+    remote_src: yes
+    owner: "{{ mautic_user }}"
+    group: "{{ mautic_group }}"
+    creates: "/opt/mautic-{{ mautic_version }}"
+
+- name: copy mautic into directory
+  synchronize:
+    src: "/opt/mautic-{{ mautic_version }}/"
+    dest: "{{ mautic_destination }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: composer install
+  become_user: "{{ mautic_user }}"
+  command: "composer install"
+  args:
+    chdir: "{{ mautic_destination }}"
+    creates: "{{ mautic_destination }}/vendor/autoload.php"
+
+- name: ensure mautic directories are 0755
+  command: find {{ mautic_destination }} -type d -exec chmod -c 0755 {} \;
+  register: chmod_result
+  changed_when: "chmod_result.stdout != \"\""
+
+- name: ensure mautic files are 0644
+  command: find {{ mautic_destination }} -type f -exec chmod -c 0644 {} \;
+  register: chmod_result
+  changed_when: "chmod_result.stdout != \"\""
+
+- name: ensure everything is set to the correct user and group
+  file:
+    dest: "{{ mautic_destination }}"
+    owner: "{{ mautic_user }}"
+    group: "{{ mautic_group }}"
+    recurse: yes
