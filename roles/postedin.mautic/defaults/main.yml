@@ -1,5 +1,5 @@
 ---
-mautic_version: "2.12.1"
+mautic_version: "2.14.1"
 
 mautic_destination: /opt/mautic
 mautic_user: www-data

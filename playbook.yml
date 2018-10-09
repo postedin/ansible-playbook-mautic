@@ -28,6 +28,7 @@
     - role: geerlingguy.certbot
       certbot_admin_email: robbo@postedin.com
       certbot_create_if_missing: yes
+      certbot_auto_renew_options: --no-self-upgrade
       certbot_create_standalone_stop_services:
         - nginx
       certbot_certs:

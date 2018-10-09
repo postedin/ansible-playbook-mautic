@@ -19,6 +19,12 @@
     dest: "{{ mautic_destination }}"
   delegate_to: "{{ inventory_hostname }}"
 
+- name: clear cache
+  become_user: "{{ mautic_user }}"
+  file:
+    state: absent
+    path: "{{ mautic_destination }}/app/cache/prod/"
+
 - name: composer install
   become_user: "{{ mautic_user }}"
   command: "composer install"
